@@ -41,7 +41,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -154,49 +153,49 @@ public class ForgeWorldEdit {
             return;
         }
 
-        if (!platform.isHookingEvents()) return; // We have to be told to catch these events
+        if (!platform.isHookingEvents())
+            return; // We have to be told to catch these events
 
-        if (event.getUseItem() == Result.DENY || event.getEntity().worldObj.isRemote) return;
+        if ((event instanceof PlayerInteractEvent.LeftClickBlock
+                && ((PlayerInteractEvent.LeftClickBlock) event)
+                        .getUseItem() == Result.DENY)
+                || (event instanceof PlayerInteractEvent.RightClickBlock
+                        && ((PlayerInteractEvent.RightClickBlock) event)
+                                .getUseItem() == Result.DENY)
+                || event.getEntity().worldObj.isRemote)
+            return;
 
         WorldEdit we = WorldEdit.getInstance();
         ForgePlayer player = wrap((EntityPlayerMP) event.getEntityPlayer());
         ForgeWorld world = getWorld(event.getEntityPlayer().worldObj);
 
-        Action action = event.getAction();
-        BlockPos blockPos = event.getPos();
-        switch (action) {
-            case LEFT_CLICK_BLOCK: {
-                WorldVector pos = new WorldVector(LocalWorldAdapter.adapt(world), blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        if (event instanceof PlayerInteractEvent.LeftClickBlock) {
+            @SuppressWarnings("deprecation")
+            WorldVector pos = new WorldVector(LocalWorldAdapter.adapt(world),
+                    event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
 
-                if (we.handleBlockLeftClick(player, pos)) {
-                    event.setCanceled(true);
-                }
-
-                if (we.handleArmSwing(player)) {
-                    event.setCanceled(true);
-                }
-
-                break;
+            if (we.handleBlockLeftClick(player, pos)) {
+                event.setCanceled(true);
             }
-            case RIGHT_CLICK_BLOCK: {
-                WorldVector pos = new WorldVector(LocalWorldAdapter.adapt(world), blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
-                if (we.handleBlockRightClick(player, pos)) {
-                    event.setCanceled(true);
-                }
-
-                if (we.handleRightClick(player)) {
-                    event.setCanceled(true);
-                }
-
-                break;
+            if (we.handleArmSwing(player)) {
+                event.setCanceled(true);
             }
-            case RIGHT_CLICK_AIR: {
-                if (we.handleRightClick(player)) {
-                    event.setCanceled(true);
-                }
+        } else if (event instanceof PlayerInteractEvent.RightClickBlock) {
+            @SuppressWarnings("deprecation")
+            WorldVector pos = new WorldVector(LocalWorldAdapter.adapt(world),
+                    event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
 
-                break;
+            if (we.handleBlockRightClick(player, pos)) {
+                event.setCanceled(true);
+            }
+
+            if (we.handleRightClick(player)) {
+                event.setCanceled(true);
+            }
+        } else if (event instanceof PlayerInteractEvent.RightClickEmpty) {
+            if (we.handleRightClick(player)) {
+                event.setCanceled(true);
             }
         }
     }

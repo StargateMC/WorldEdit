@@ -84,6 +84,7 @@ public class ForgePlayer extends AbstractPlayerActor {
                 this.player.rotationPitch);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public WorldVector getPosition() {
         return new WorldVector(LocalWorldAdapter.adapt(ForgeWorldEdit.inst.getWorld(this.player.worldObj)), this.player.posX, this.player.posY, this.player.posZ);
@@ -146,7 +147,7 @@ public class ForgePlayer extends AbstractPlayerActor {
     private void sendColorized(String msg, TextFormatting formatting) {
         for (String part : msg.split("\n")) {
             TextComponentString component = new TextComponentString(part);
-            component.getChatStyle().setColor(formatting);
+            component.getStyle().setColor(formatting);
             this.player.addChatMessage(component);
         }
     }
