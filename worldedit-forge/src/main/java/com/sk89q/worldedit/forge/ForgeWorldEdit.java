@@ -111,8 +111,6 @@ public class ForgeWorldEdit {
             WorldEdit.getInstance().getPlatformManager().unregister(platform);
         }
 
-        ForgeBiomeRegistry.populate();
-
         this.platform = new ForgePlatform(this);
 
         WorldEdit.getInstance().getPlatformManager().register(platform);
